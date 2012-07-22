@@ -115,6 +115,15 @@ class EActiveRecordRelationBehavior extends CActiveRecordBehavior
 	public function afterSave($event)
 	{
 		try {
+			// we have a transaction
+			if ($this->_transaction!==null){
+				// is it active?
+				if (!$this->_transaction->getActive()) {
+					// restart the transaction
+					if ($this->useTransaction && $this->owner->dbConnection->currentTransaction===null)
+						$this->_transaction=$this->owner->dbConnection->beginTransaction();
+				}
+			}
 			/** @var CDbCommandBuilder $commandBuilder */
 			$commandBuilder=$this->owner->dbConnection->commandBuilder;
 
